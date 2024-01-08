@@ -30,6 +30,17 @@ config.window_padding = {
 	bottom = 1,
 }
 
+local session_manager = require("wezterm-session-manager/session-manager")
+wezterm.on("save_session", function(window)
+	session_manager.save_state(window)
+end)
+wezterm.on("load_session", function(window)
+	session_manager.load_session(window)
+end)
+wezterm.on("restore_session", function(window)
+	session_manager.restore_session(window)
+end)
+
 config.use_fancy_tab_bar = false
 config.enable_scroll_bar = true
 config.leader = {
@@ -74,6 +85,21 @@ config.keys = {
 		mods = "LEADER",
 		action = act.ShowLauncherArgs({ flags = "WORKSPACES" }),
 	},
+	{
+		key = "S",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action({ EmitEvent = "save_session" }),
+	},
+	{
+		key = "R",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action({ EmitEvent = "restore_session" }),
+	},
+	{
+		key = "L",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action({ EmitEvent = "load_session" }),
+	},
 }
 
 local smart_splits = wezterm.plugin.require("https://github.com/mrjones2014/smart-splits.nvim")
@@ -90,5 +116,6 @@ smart_splits.apply_to_config(config, {
 		resize = "META", -- modifier to use for pane resize, e.g. META+h to resize to the left
 	},
 })
+
 -- and finally, return the configuration to wezterm
 return config
