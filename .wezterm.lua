@@ -35,10 +35,14 @@ wezterm.on("save_session", function(window)
 	session_manager.save_state(window)
 end)
 wezterm.on("load_session", function(window)
-	session_manager.load_session(window)
+	session_manager.load_state(window)
 end)
 wezterm.on("restore_session", function(window)
-	session_manager.restore_session(window)
+	session_manager.restore_state(window)
+end)
+
+wezterm.on("update-right-status", function(window, _)
+	window:set_right_status(window:active_workspace())
 end)
 
 config.use_fancy_tab_bar = false
@@ -97,8 +101,24 @@ config.keys = {
 	},
 	{
 		key = "L",
-		mods = "LEADER|SHIFT",
+		mods = "LEADER",
 		action = wezterm.action({ EmitEvent = "load_session" }),
+	},
+	{
+		key = "S",
+		mods = "CTRL|SHIFT",
+		action = act.PromptInputLine({
+			description = wezterm.format({
+				{ Attribute = { Intensity = "Bold" } },
+				{ Foreground = { AnsiColor = "Fucshia" } },
+				{ Text = "Enter name for new workspace" },
+			}),
+			action = wezterm.action_callback(function(window, pane, line)
+				if line then
+					window:perform_action(act.SwitchToWorkspace({ name = line }), pane)
+				end
+			end),
+		}),
 	},
 }
 
